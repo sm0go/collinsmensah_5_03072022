@@ -1,13 +1,15 @@
 async function mainProduct(){
   const kanapId = getId()
+  localStorage.id = kanapId
   const kanapItem = await getKanap(kanapId)
-  const kanapColor = getColor(kanapItem)
-
+  var kanapColor = getColor(kanapItem)
+  
   for([nameValue, value] of Object.entries(kanapItem)){
-    // console.log(nameValue, value);
-    var color = kanapItem.colors
     kanapInfo(kanapItem)
   }
+
+  getQuantity()
+  let panier = savePanier()
   
 
 } 
@@ -16,7 +18,7 @@ function getId() {
   return new URL(location.href).searchParams.get("id")
 }
 
-function getKanap(kanapId) {
+async function getKanap(kanapId) {
   return fetch(`http://localhost:3000/api/products/${kanapId}`)
   .then(res => {
     if (res.ok){
@@ -35,6 +37,17 @@ function getColor(kanapItem){
       .innerHTML += `
       <option value="${i}">${colors}</option>`
   }
+  
+  document
+    .getElementById('colors')
+    .addEventListener('change', (e) =>{
+      var i = e.target.options[e.target.selectedIndex].text 
+      if(i === "--SVP, choisissez une couleur --"){
+        
+      } else {
+        localStorage.color = i
+      }
+    })
 }
 
 function kanapInfo(kanapItem){
@@ -53,6 +66,34 @@ function kanapInfo(kanapItem){
   document
     .getElementById('description')
     .innerHTML = `${kanapItem.description}`
+
+}
+
+async function getQuantity(){
+
+  document
+    .getElementById('quantity')
+    .addEventListener('change', () => {
+      localStorage.quantity = document.getElementById('quantity').value
+    })
+}
+
+function savePanier(){
+  let x = []
+  document
+  .getElementById('addToCart')
+  .addEventListener('click', () =>{
+    
+      let tabKanap = 
+      {
+        id: localStorage.id,
+        quantity: localStorage.quantity,
+        color: localStorage.color
+      }
+
+      x.push(JSON.stringify(tabKanap))
+      console.log(localStorage.panier)
+    })
 
 }
 
