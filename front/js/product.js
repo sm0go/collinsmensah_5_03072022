@@ -31,11 +31,11 @@ async function getKanap(kanapId) {
 
 function getColor(kanapItem){
   for([i] of Object.keys(kanapItem.colors)){
-    var colors = kanapItem.colors[i]
+    var color = kanapItem.colors[i]
     document
       .getElementById('colors')
       .innerHTML += `
-      <option value="${i}">${colors}</option>`
+      <option value="${i}">${color}</option>`
   }
   
   document
@@ -79,11 +79,10 @@ async function getQuantity(){
 }
 
 function savePanier(){
-  let x = []
+  let x = JSON.parse(localStorage.panier)
   document
-  .getElementById('addToCart')
-  .addEventListener('click', () =>{
-    
+    .getElementById('addToCart')
+    .addEventListener('click', () =>{
       let tabKanap = 
       {
         id: localStorage.id,
@@ -91,9 +90,18 @@ function savePanier(){
         color: localStorage.color
       }
 
-      x.push(JSON.stringify(tabKanap))
-      console.log(localStorage.panier)
-    })
+      if(x == null){
+        x = []
+        x.push(tabKanap)
+        localStorage.panier = JSON.stringify(x)
+        console.log(x)
+      } else {
+        x.push(tabKanap)
+        localStorage.panier = JSON.stringify(x)
+        console.log(x)
+      }
+      
+      })
 
 }
 
