@@ -78,31 +78,53 @@ async function getQuantity(){
     })
 }
 
-function savePanier(){
-  let x = JSON.parse(localStorage.panier)
+async function savePanier(){
+  let panier = localStorage.panier
+
   document
-    .getElementById('addToCart')
-    .addEventListener('click', () =>{
-      let tabKanap = 
-      {
-        id: localStorage.id,
-        quantity: localStorage.quantity,
-        color: localStorage.color
-      }
+  .getElementById('addToCart')
+  .addEventListener('click', () =>{
+    
+    let tabKanap = 
+    {
+      id: localStorage.id,
+      quantity: localStorage.quantity,
+      color: localStorage.color
+    }
 
-      if(x == null){
-        x = []
-        x.push(tabKanap)
-        localStorage.panier = JSON.stringify(x)
-        console.log(x)
-      } else {
-        x.push(tabKanap)
-        localStorage.panier = JSON.stringify(x)
-        console.log(x)
+      if(panier == null){
+        panier = []
+        panier.push(tabKanap)
+        localStorage.panier = JSON.stringify(panier)
+        console.log(panier)    
+        
+      } else if (panier != null){
+        let objetPanier = JSON.parse(localStorage.panier)
+        for(let i = 0; i < panier.length; i++){
+          let k = panier[i]
+
+          if(tabKanap.id != i.id){
+
+            console.log(i.id, "Kanap");
+          }
+        }
+
+        // for(i of panier){
+        //   if(tabKanap.color == i.color && tabKanap.id == i.id){
+        //     let sums = Number(i.quantity) + Number(tabKanap.quantity)
+        //     return(
+        //       localStorage.quantity = String(sums),
+        //       tabKanap.quantity = localStorage.quantity,
+        //       console.log('addition quantité : ', sums),
+        //       localStorage.panier = JSON.stringify(x),
+        //       x = JSON.parse(localStorage.panier)
+        //     )
+        //   }
+        // }
       }
-      
       })
-
+  console.log(localStorage.panier);
+  
 }
 
 mainProduct()
