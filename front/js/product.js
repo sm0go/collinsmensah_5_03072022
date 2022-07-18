@@ -108,7 +108,6 @@ async function savePanier(){
             console.log(i.id, "Kanap");
           }
         }
-
         // for(i of panier){
         //   if(tabKanap.color == i.color && tabKanap.id == i.id){
         //     let sums = Number(i.quantity) + Number(tabKanap.quantity)
