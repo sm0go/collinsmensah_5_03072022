@@ -1,6 +1,5 @@
 async function mainProduct(){
   const kanapId = getId()
-  localStorage.id = kanapId
   const kanapItem = await getKanap(kanapId)
   var kanapColor = getColor(kanapItem)
   
@@ -8,10 +7,8 @@ async function mainProduct(){
     kanapInfo(kanapItem)
   }
 
-  getQuantity()
-  let panier = savePanier()
+  savePanier(kanapId)
   
-
 } 
 
 function getId() {
@@ -37,17 +34,6 @@ function getColor(kanapItem){
       .innerHTML += `
       <option value="${i}">${color}</option>`
   }
-  
-  document
-    .getElementById('colors')
-    .addEventListener('change', (e) =>{
-      var i = e.target.options[e.target.selectedIndex].text 
-      if(i === "--SVP, choisissez une couleur --"){
-        
-      } else {
-        localStorage.color = i
-      }
-    })
 }
 
 function kanapInfo(kanapItem){
@@ -69,61 +55,64 @@ function kanapInfo(kanapItem){
 
 }
 
-async function getQuantity(){
-
-  document
-    .getElementById('quantity')
-    .addEventListener('change', () => {
-      localStorage.quantity = document.getElementById('quantity').value
-    })
-}
-
-async function savePanier(){
+async function savePanier(kanapId){
+  
   let panier = localStorage.panier
-
+  const colors = document.getElementById('colors')
+  
   document
   .getElementById('addToCart')
   .addEventListener('click', () =>{
-    
+    let id = kanapId
+    let color = colors.options[colors.selectedIndex].text
+    let quantity = document.getElementById('quantity').value
+
     let tabKanap = 
     {
-      id: localStorage.id,
-      quantity: localStorage.quantity,
-      color: localStorage.color
+      id: id, 
+      quantity: quantity, 
+      color: color
     }
-
-      if(panier == null){
-        panier = []
-        panier.push(tabKanap)
-        localStorage.panier = JSON.stringify(panier)
-        console.log(panier)    
-        
-      } else if (panier != null){
-        let objetPanier = JSON.parse(localStorage.panier)
-        for(let i = 0; i < panier.length; i++){
-          let k = panier[i]
-
-          if(tabKanap.id != i.id){
-
-            console.log(i.id, "Kanap");
+    
+      if(color === "--SVP, choisissez une couleur --"){
+        alert('SVP, choisissez une couleur')
+      } else if (quantity == 0) {
+        alert('SVP, Selectionner une quantité')
+      } else {
+        if(panier == null){
+          tabPanier = []
+          tabPanier.push(tabKanap)
+          localStorage.panier = JSON.stringify(tabPanier)
+          console.log(tabPanier)    
+        } else if (panier !== null) {
+          let objetPanier = JSON.parse(localStorage.panier)
+          console.log('objetPanier', objetPanier)
+          const result = objetPanier.filter(item => item.id === tabKanap.id); // filtre sur l'id du produit
+          if(result.length === 0) { // Si l'id n'existe pas dans le tableau de filtre
+            // Ajout du produit dans localstorage
+            objetPanier.push(tabKanap) 
+            localStorage.panier = JSON.stringify(objetPanier)
+          } else {  // Sinon filter sur la coleur   
+          let res = result.filter(item => item.color === tabKanap.color);
+          console.log('res', res)
+            if (res.length === 0){ // Si color n'existe pas
+              // Ajout dans localStorage
+              objetPanier.push(tabKanap)
+              localStorage.panier = JSON.stringify(objetPanier)
+            } else {
+              // Recuperer la quantité
+              let quantity =  parseInt(res[0].quantity) + parseInt(tabKanap.quantity)
+              res[0].quantity = String(quantity)
+              tabKanap.quantity = res[0].quantity
+              objetPanier.push(tabKanap)
+              objetPanier.pop()
+              localStorage.panier = JSON.stringify(objetPanier)
+              console.log('result', res)
+            }
           }
         }
-        // for(i of panier){
-        //   if(tabKanap.color == i.color && tabKanap.id == i.id){
-        //     let sums = Number(i.quantity) + Number(tabKanap.quantity)
-        //     return(
-        //       localStorage.quantity = String(sums),
-        //       tabKanap.quantity = localStorage.quantity,
-        //       console.log('addition quantité : ', sums),
-        //       localStorage.panier = JSON.stringify(x),
-        //       x = JSON.parse(localStorage.panier)
-        //     )
-        //   }
-        // }
-      }
+      }  
       })
-  console.log(localStorage.panier);
-  
 }
 
 mainProduct()

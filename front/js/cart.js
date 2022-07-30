@@ -1,17 +1,20 @@
 async function mainCart(){
 
   let panier = JSON.parse(localStorage.panier)
-
+  let tabPrice = []
   for(i of Object.keys(panier)){
     let kanapPanier = panier[i]
     console.log(kanapPanier);
     let kanapFromId = await getKanapFromId(kanapPanier)
-    panierInfo(kanapFromId, kanapPanier)
-    changeQuantity()
+    let price = panierInfo(kanapFromId, kanapPanier)
+    // panier.forEach(e => e.name = kanapFromId.name)
+    tabPrice.push(price)
+    changeQuantity(panier)
+    console.log();
+    deleteKanap(panier, kanapFromId)
   }
 
-  total()
-  deleteKanap(panier)
+  total(panier, tabPrice)
   getForm()
 }
 
@@ -44,7 +47,7 @@ function panierInfo(kanapFromId, kanapPanier){
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
           <p>Qté : </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" data-id="${kanapPanier.id} " data-color="${kanapPanier.color} " min="1" max="100" value="${kanapPanier.quantity}">
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapPanier.quantity}">
         </div>
         <div class="cart__item__content__settings__delete">
           <p class="deleteItem" data-id="${kanapPanier.id} ">Supprimer</p>
@@ -52,70 +55,159 @@ function panierInfo(kanapFromId, kanapPanier){
       </div>
     </div>
   </article>`
+
+  return kanapFromId.price * kanapPanier.quantity
+  
 }
 
-function total(){
+function total(panier, tabPrice){
+
+  let sumQuantity = panier.reduce((total, num) => Number(total) + Number(num.quantity), 0)
+  let sumPrice = tabPrice.reduce((total, num) => total + num, 0)
+
   document
     .getElementById('totalQuantity')
-    .innerHTML = ``
+    .innerHTML = `${sumQuantity}`
 
     document
     .getElementById('totalPrice')
-    .innerHTML = ``
+    .innerHTML = `${sumPrice}`
 }
 
-function changeQuantity(){
-  let x = document.getElementsByClassName('itemQuantity')
-
-  x[0].addEventListener('change', () => {
-
-  })
-
+function changeQuantity(panier){
+  
+  let itemQuantity = document.getElementsByClassName('itemQuantity')
+  
+  for (let i = 0; i < itemQuantity.length; i++){
+    let quantityButton = itemQuantity[i]
+    quantityButton.addEventListener('change', (e) => {
+      panier[i].quantity = e.target.value
+      panier.push(panier[i])
+      panier.pop()     
+      localStorage.panier = JSON.stringify(panier)
+      console.log(panier);
+      alert('Votre panier a été modifié !')
+    })
+  }
+  
 }
 
-function deleteKanap(panier){
+function deleteKanap(panier, kanapFromId){
 
   let suppr = document.getElementsByClassName('deleteItem')
-  let p = panier
 
   for(let i = 0; i < suppr.length; i++){
     const deleteButton = suppr[i] 
-    // console.log(i);
     deleteButton.addEventListener('click', () => {
-      for (i of Object.keys(panier)) {
-        
-      }
-      const find = i.find(e => e == Object.keys(panier))
+      console.log(i);
+      panier.splice(i, 1)
+      console.log(panier);
+      localStorage.panier = JSON.stringify(panier)
+      alert(`Votre ${kanapFromId.name} a bien été supprimé !`)
     })
   }
 }
 
 function getForm(){
+
+ 
+  
   document
     .getElementById('firstName')
     .addEventListener('change', (e) =>{
+      let firstName = e.target.value
+      let regex = /^[a-zA-ZÀ-ÿ -]{3,}$/
+      console.log(regex.test(firstName))
+      if (regex.test(firstName)) {
+        return firstName
+      } else {
+        document
+          .getElementById('firstNameErrorMsg')
+          .innerHTML = 'Prénom inccorect.'
+      }
     })
-    document
+
+  document
     .getElementById('lastName')
     .addEventListener('change', (e) =>{
-
+      let lastName = e.target.value
+      let regex = /^[a-zA-ZÀ-ÿ -]{3,}$/
+      console.log(regex.test(lastName))
+      if (regex.test(lastName)) {
+        return lastName
+      } else {
+        document
+          .getElementById('lastNameErrorMsg')
+          .innerHTML = 'Nom inccorect.'
+      }
     })
-    document
+
+  document
     .getElementById('address')
     .addEventListener('change', (e) =>{
-
+      let address = e.target.value
+      let regex = /^[0-9]{2,3}( *[a-zA-ZÀ-ÿ'-])+/
+      console.log(regex.test(address))
+      if (regex.test(address)) {
+        return address
+      } else {
+        document
+          .getElementById('addressErrorMsg')
+          .innerHTML = 'Address inccorect.'
+      }
     })
-    document
+
+  document
     .getElementById('city')
     .addEventListener('change', (e) =>{
+      let city = e.target.value
+      let regex = /^[a-zA-ZÀ-ÿ -]{3,}$/
+      console.log(regex.test(city))
+      if (regex.test(city)) {
+        return city
+      } else {
+        document
+          .getElementById('cityErrorMsg')
+          .innerHTML = 'Ville inccorect.'
+      }
     })
-    document
+
+  document
     .getElementById('email')
     .addEventListener('change', (e) =>{
-      let value = e.target.value
-      console.log(value);
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+      let email = e.target.value
+      let regex = /[a-z0-9-_]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+/
+      console.log(regex.test(email))
+      if (regex.test(email)) {
+        return email
+      } else {
+        document
+          .getElementById('emailErrorMsg')
+          .innerHTML = 'E-mail inccorect.'
+      }
     })
+
+  document
+
+      const formSubmit = document.getElementsByClassName('cart__order__form')
+      formSubmit[0].addEventListener('submit', (e)=>{
+        e.preventDefault()
+        const load = new FormData(formSubmit[0])
+        console.log([...load]);
+        fetch('http://localhost:3000/api/products/order', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json', 
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(load), 
+          })
+            .then(res => res.json())
+            .then(data => console.log(data))
+          }) 
+
+
+    
 }
 
 mainCart()
