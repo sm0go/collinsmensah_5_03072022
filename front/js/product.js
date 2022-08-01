@@ -1,6 +1,6 @@
 async function mainProduct(){
   const kanapId = getId()
-  const kanapItem = await getKanap(kanapId)
+  let kanapItem = await getKanap(kanapId)
   var kanapColor = getColor(kanapItem)
   
   for([nameValue, value] of Object.entries(kanapItem)){
@@ -74,16 +74,19 @@ async function savePanier(kanapId){
       color: color
     }
     
+    
+
       if(color === "--SVP, choisissez une couleur --"){
         alert('SVP, choisissez une couleur')
       } else if (quantity == 0) {
         alert('SVP, Selectionner une quantité')
       } else {
         if(panier == null){
-          tabPanier = []
-          tabPanier.push(tabKanap)
-          localStorage.panier = JSON.stringify(tabPanier)
-          console.log(tabPanier)    
+          panier = []
+          panier.push(tabKanap)
+          localStorage.panier = JSON.stringify(panier)
+          console.log(panier) 
+          alert('Votre Kanap à bien été ajouté')
         } else if (panier !== null) {
           let objetPanier = JSON.parse(localStorage.panier)
           console.log('objetPanier', objetPanier)
@@ -92,6 +95,7 @@ async function savePanier(kanapId){
             // Ajout du produit dans localstorage
             objetPanier.push(tabKanap) 
             localStorage.panier = JSON.stringify(objetPanier)
+            alert('Votre Kanap à bien été ajouté')
           } else {  // Sinon filter sur la coleur   
           let res = result.filter(item => item.color === tabKanap.color);
           console.log('res', res)
@@ -99,6 +103,7 @@ async function savePanier(kanapId){
               // Ajout dans localStorage
               objetPanier.push(tabKanap)
               localStorage.panier = JSON.stringify(objetPanier)
+              alert('Votre Kanap à bien été ajouté')
             } else {
               // Recuperer la quantité
               let quantity =  parseInt(res[0].quantity) + parseInt(tabKanap.quantity)
@@ -108,6 +113,7 @@ async function savePanier(kanapId){
               objetPanier.pop()
               localStorage.panier = JSON.stringify(objetPanier)
               console.log('result', res)
+              alert('La quantité de votre Kanap à bien été modifié')
             }
           }
         }

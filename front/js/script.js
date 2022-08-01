@@ -4,7 +4,6 @@ async function main() {
   for(article of kanap){
     kanapDisplay(article)
   }
-
 }
 
 function api() {
@@ -29,14 +28,6 @@ document
       <p class="productDescription">${article.description}</p>
     </article>
   </a>`
-
-  // const kanapItems = document.getElementById('items')
-  // const cloneItems = document.importNode(kanapItems.content, true)
-  
-  // cloneItems.getElementByClassName('productName').textContent = article.name
-  // cloneItems.getElementByTagName('a').textContent = article.imageUrl
-  
-  // document.getElementById('')
 }
 
 main()
