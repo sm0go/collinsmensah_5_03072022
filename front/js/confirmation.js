@@ -1,4 +1,5 @@
 function confirm(){
+  let panier = JSON.parse(localStorage.panier)
   let orderId = getOrderId()
   orderIdDisplay(orderId)
 }
@@ -12,6 +13,8 @@ function orderIdDisplay(orderId){
   document
     .getElementById('orderId')
     .innerHTML = `${orderId}`
+
+  localStorage.clear()
 }
 
 confirm()

@@ -80,6 +80,8 @@ async function savePanier(kanapId){
         alert('SVP, choisissez une couleur')
       } else if (quantity == 0) {
         alert('SVP, Selectionner une quantité')
+      } else if (quantity < 0 || quantity >= 100) {
+        alert('La quantité saisie est inccorect')
       } else {
         if(panier == null){
           panier = []
@@ -118,7 +120,7 @@ async function savePanier(kanapId){
           }
         }
       }  
-      })
+  })
 }
 
 mainProduct()

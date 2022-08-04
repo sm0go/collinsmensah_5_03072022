@@ -1,43 +1,51 @@
 async function mainCart(){
 
-  // Panier recupéré du localStorage
-  let panier = JSON.parse(localStorage.panier)
-
-
-  let tabPrice = []
-
-  // tableau d'Id de chaque Kanap du panier
-  let arrayKanapId = []
-
-  // Pour chaque Kanap (produit) du panier....
-  for(i of Object.keys(panier)){
-    // Définir kanapPanier en tant que produit  
-    let kanapPanier = panier[i]
-
-    // Récuperer les infos du produit
-    let kanapFromId = await getKanapFromId(kanapPanier)
-
-    // Concatener les infos du produit dans le panier, puis récuperer le prix total (selon la quantité)
-    let price = panierInfo(kanapFromId, kanapPanier)
-
-    // Stocker les prix dans le tableau
-    tabPrice.push(price)
-
-    // Permettre le changement de quantité du produit 
-    changeQuantity(panier)
-
-    // Permettre la suppression du produit
-    deleteKanap(panier, kanapFromId)
-
-    //Stocker les Id dans le tableau
-    arrayKanapId.push(kanapPanier.id)
-  }
+  try { 
+    // Panier recupéré du localStorage
+    let panier = JSON.parse(localStorage.panier)
   
-  // Obtenir le prix et quantité de TOUS les produits
-  total(panier, tabPrice)
+    let tabPrice = []
+  
+    // tableau d'Id de chaque Kanap du panier
+    let arrayKanapId = []
+  
+    // Pour chaque Kanap (produit) du panier....
+    for(i of Object.keys(panier)){
+      // Définir kanapPanier en tant que produit  
+      let kanapPanier = panier[i]
+  
+      // Récuperer les infos du produit
+      let kanapFromId = await getKanapFromId(kanapPanier)
+  
+      // Concatener les infos du produit dans le panier, puis récuperer le prix total (selon la quantité)
+      let price = panierInfo(kanapFromId, kanapPanier)
+  
+      // Stocker les prix dans le tableau
+      tabPrice.push(price)
+  
+      // Permettre le changement de quantité du produit 
+      changeQuantity(panier)
+  
+      // Permettre la suppression du produit
+      deleteKanap(panier, kanapFromId)
+  
+      //Stocker les Id dans le tableau
+      arrayKanapId.push(kanapPanier.id)
+    }
+    
+    // Obtenir le prix et quantité de TOUS les produits
+    total(panier, tabPrice)
+  
+    // Requête 'POST' du numéro de commande
+    getForm(arrayKanapId, panier)
 
-  // Requête 'POST' du numéro de commande
-  let orderId = getForm(arrayKanapId) 
+  } catch (err) {
+
+  emptyPanier()
+   
+  }
+
+  
 }
 
 async function getKanapFromId(info){
@@ -130,7 +138,7 @@ function deleteKanap(panier, kanapFromId){
   }
 }
 
-function getForm(products){
+function getForm(products, panier){
 
   // Variables
 
@@ -240,32 +248,54 @@ function getForm(products){
       .getElementById('order')
       .addEventListener('click', (e) => {
         e.preventDefault()
-        if (Object.keys(contact).length == 5) {
-          fetch('http://localhost:3000/api/products/order', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json', 
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({products, contact}), 
-          })
-            .then(res => res.json())
-            .then(data => {
-                window.location.href = `./confirmation.html?orderId=${data.orderId}`
+        if(panier == 0){
+          alert('Votre panier est vide.')
+        } else if (panier.length >= 1) {
+          if (Object.keys(contact).length == 5) {
+            fetch('http://localhost:3000/api/products/order', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json', 
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({products, contact}), 
             })
-            .catch(error => alert(error))
-        } else if (Object.keys(contact).length == 0) {
-          console.log("Conditions non remplies pour l'envoi du formulaire");
-          firstNameErrorMsg.innerHTML = 'Champ vide.'
-          lastNameErrorMsg.innerHTML = 'Champ vide.'
-          addressErrorMsg.innerHTML = 'Champ vide.'
-          cityErrorMsg.innerHTML = 'Champ vide.'
-          emailErrorMsg.innerHTML = 'Champ vide.'
-        } else {
-          console.log("Conditions non remplies pour l'envoi du formulaire");
-        }
+              .then(res => res.json())
+              .then(data => {
+                  window.location.href = `./confirmation.html?orderId=${data.orderId}`
+              })
+              .catch(error => alert(error))
+          } else if (Object.keys(contact).length == 0) {
+            console.log("Conditions non remplies pour l'envoi du formulaire");
+            firstNameErrorMsg.innerHTML = 'Champ vide.'
+            lastNameErrorMsg.innerHTML = 'Champ vide.'
+            addressErrorMsg.innerHTML = 'Champ vide.'
+            cityErrorMsg.innerHTML = 'Champ vide.'
+            emailErrorMsg.innerHTML = 'Champ vide.'
+          } else {
+            console.log("Conditions non remplies pour l'envoi du formulaire");
+          }
+        } 
       })
+}
 
+function emptyPanier(){
+  document
+  .getElementById('order')
+  .addEventListener('click', (e) => {
+    e.preventDefault()
+    alert('Votre panier est vide')
+  })
+
+console.log('panier vide');
+
+document
+  .getElementById('totalQuantity')
+  .innerHTML = `0`
+
+document
+  .getElementById('totalPrice')
+  .innerHTML = `0`
 }
 
 mainCart()
